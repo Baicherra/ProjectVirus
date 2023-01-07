@@ -1,4 +1,4 @@
-extends KinematicBody2D
+extends CharacterBody2D
 class_name Player
 
 ######################################################################################
@@ -17,39 +17,38 @@ var lvl1 = false
 var lvl2 = false
 var lvl3 = false
 
-var SPEED = 0
+@export var SPEED = 80
 
 # получить группу с игроком
 func _ready(): 
-	yield(get_tree(), "idle_frame")
-	var tree = get_tree()
-	if tree.has_group("Player"):
-		player = tree.get_nodes_in_group("Player")[0]
-	
-	$ScentTimer.connect("timeout", self, "add_scent")
+	pass	
+#	$ScentTimer.connect("timeout",Callable(self,"add_scent"))
 	
 ######################################################################################
 ################################## ЗАПАХ #############################################
 ######################################################################################
 func add_scent():
-	var scent = scent_scene.instance()
-	scent.player = player
-	scent.global_position = player.global_position
-	
-	player.get_parent().add_child(scent)
-	scent_trail.push_front(scent)
+	pass
+#	var scent = scent_scene.instantiate()
+#	scent.player = player
+#	scent.global_position = player.global_position
+#
+#	player.get_parent().add_child(scent)
+#	scent_trail.push_front(scent)
 
 ######################################################################################
 ############################### ПЕРЕДВИЖЕНИЕ #########################################
 ######################################################################################
 func _physics_process(_delta):
 	var INPUT_VECTOR = Vector2(
-		Input.get_action_strength("ui_right") - Input.get_action_strength("ui_left"),
-		Input.get_action_strength("ui_down") - Input.get_action_strength("ui_up")
+		Input.get_action_strength("right") - Input.get_action_strength("left"),
+		Input.get_action_strength("down") - Input.get_action_strength("up")
 	)
 	
 	var MOVE_DIRECTION = INPUT_VECTOR.normalized()
-	MOVE_DIRECTION = move_and_slide(SPEED * MOVE_DIRECTION)
+	set_velocity(SPEED * MOVE_DIRECTION)
+	move_and_slide()
+	MOVE_DIRECTION = velocity
 
 ######################################################################################
 ########################### РАДИУС ТЕРРОРА ИГРОКА ####################################

@@ -1,0 +1,12 @@
+res://Main/Scenes/TestZone/Test.tscn
+res://Main/Scenes/Player/Player.tscn
+res://Main/Scripts/Enemy/Enemy.gd
+res://Main/Scripts/Player/Player.gd
+res://node_2d.tscn
+res://Main/Scripts/UI/Stamina.gd
+res://Main/Scripts/UI/TerrorUi.gd
+res://Main/Scenes/Enemy/Enemy.tscn
+res://Main/Scenes/TileSets/TestTile.tscn
+res://Main/Scenes/TileSets/NavigationTile.tscn
+res://Main/Scenes/PatrolPoint/PatrolPoint.tscn
+res://Main/Scripts/PatrolPoint/PatrolPoint.gd

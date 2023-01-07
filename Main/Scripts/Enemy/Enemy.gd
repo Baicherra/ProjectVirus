@@ -1,30 +1,28 @@
-extends KinematicBody2D
+extends CharacterBody2D
 class_name Enemy
 
-export var path_to_hunt := NodePath()
-export var path_to_point := NodePath()
-export var path_to_scent := NodePath()
+@export var path_to_hunt := NodePath()
+@export var path_to_point := NodePath()
 
-var velocity := Vector2.ZERO
 
-var PATROL_SPEED = 30
+var PATROL_SPEED = 20
 var HUNT_SPEED = 70
-var SCENT_SPEED = 50
+var SCENT_SPEED = 40
 
-onready var agent: NavigationAgent2D = $NavigationAgent2D
+@onready var agent: NavigationAgent2D = $NavigationAgent2D
 
-onready var timer := $Timer
+@onready var timer := $Timer
 
-onready var patrol_line = $Patrol_Line
-onready var hunt_line = $Hunt_Line
-onready var scent_line = $Scent_Line
+@onready var patrol_line = $Patrol_Line
+@onready var hunt_line = $Hunt_Line
+@onready var scent_line = $Scent_Line
 
-onready var ray_point = $RayPoint
-onready var ray_hunt = $RayPlayer
-onready var ray_scent = $RayScent
+@onready var ray_point = $RayPoint
+@onready var ray_hunt = $RayPlayer
+@onready var ray_scent = $RayScent
 
-onready var player := $"../Player"
-onready var patrol_point := $"../Path2D/PathFollow2D/PatrolPoint"
+@onready var player := $"../Player"
+@onready var patrol_point := $"../Path2D/PathFollow2D/PatrolPoint"
 
 var patrol_mode := false
 var hunt_mode := false
@@ -34,7 +32,7 @@ var player_spotted := false
 var scent_spotted := false
 
 func _ready() -> void:
-	timer.connect("timeout", self, "_update_pathfinding")
+	timer.connect("timeout",Callable(self,"_update_pathfinding"))
 
 func _physics_process(_delta: float) -> void:
 	if patrol_point and patrol_mode == true:
@@ -48,13 +46,15 @@ func _physics_process(_delta: float) -> void:
 		check_player_in_detection()
 		if player_spotted == true:
 			hunt_line.global_position = Vector2.ZERO
-			generate_path()
-			_update_pathfinding()
 			print("HUNT MODE")
-		if scent_spotted == true:
-			generate_path()
-			_update_pathfinding()
-			print("SCENT MODE")
+#		if hunt_mode == false:
+#			for scent in player.scent_trail:
+#				ray_scent.look_at(scent.global_position)
+#				if scent_spotted == true:
+#					check_scent_in_detection()
+#					print("SCENT MODE")
+	generate_path()
+	_update_pathfinding()
 	move()
 	
 	if agent.is_navigation_finished():
@@ -63,28 +63,32 @@ func _physics_process(_delta: float) -> void:
 # ФУНКЦИЯ ЛУЧАvelocity
 func check_player_in_detection():
 	var collider = ray_hunt.get_collider()
-	if collider and collider.is_in_group("Player"):
+	if collider and collider.player:
+		print("spotted")
 		player_spotted = true
 		hunt_mode = true
 		
 		patrol_mode = false
 		return true
 	else:
+		player_spotted = false
 		hunt_mode = false
 		
-		scent_mode = true
-		check_scent_in_detection()
+		patrol_mode = true
 	return false
 	
-func check_scent_in_detection():
-	for scent in player.scent_trail:
-		var collider = ray_scent.get_collider()
-		ray_scent.look_at(scent.global_position)
-		if collider and collider.is_in_group("Scent"):
-			print("collided")
-			scent_spotted = true
-			return true
-	return false
+#func check_scent_in_detection():
+#	for scent in player.scent_trail:
+#		var collider = ray_scent.get_collider()
+#		ray_scent.look_at(scent.global_position)
+#		if collider and collider.player.scent_trail:
+#			print("collided")
+#			scent_spotted = true
+#			return true
+#		else:
+#			scent_spotted = false
+#			patrol_mode = true
+#		return false
 	
 func generate_path():
 	if patrol_mode == true and hunt_mode == false:
@@ -95,9 +99,9 @@ func generate_path():
 		var hunt_target_position:= agent.get_next_location()
 		velocity = global_position.direction_to(hunt_target_position) * HUNT_SPEED
 	
-	elif scent_mode == true:
-		var scent_target_position:= agent.get_next_location()
-		velocity = global_position.direction_to(scent_target_position) * SCENT_SPEED
+#	elif scent_mode == true:
+#		var scent_target_position:= agent.get_next_location()
+#		velocity = global_position.direction_to(scent_target_position) * SCENT_SPEED
 	
 func _update_pathfinding() -> void:
 	if patrol_mode == true and hunt_mode == false: 
@@ -106,12 +110,14 @@ func _update_pathfinding() -> void:
 	elif hunt_mode == true and patrol_mode == false:
 		agent.set_target_location(player.global_position)
 		
-	elif scent_mode == true:
-		for scent in player.scent_trail:
-			agent.set_target_location(scent.global_position)
+#	elif scent_mode == true:
+#		for scent in player.scent_trail:
+#			agent.set_target_location(scent.global_position)
 		
 func move() -> void:
-	velocity = move_and_slide(velocity)
+	set_velocity(velocity)
+	move_and_slide()
+	velocity = velocity
 	
 # РАДИУС ТЕРРОРА МОНСТРА
 func _on_EnemyTerrorLVL_area_entered(_area: Node2D) -> void:
