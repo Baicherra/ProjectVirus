@@ -1,0 +1,7 @@
+[gd_scene format=2]
+
+[node name="state_manager" type="Node"]
+
+[node name="patrolling_state" type="Node" parent="."]
+
+[node name="hunting_state" type="Node" parent="."]
